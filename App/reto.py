@@ -33,6 +33,9 @@ import csv
 from ADT import list as lt
 from DataStructures import listiterator as it
 from DataStructures import liststructure as lt
+from Sorting import insertionsort as insort
+from Sorting import selectionsort as selsort
+from Sorting import shellsort as shsort
 
 from time import process_time 
 
@@ -78,10 +81,115 @@ def loadCSVFile (file, cmpfunction):
 
 
 def loadMovies ():
-    lst = loadCSVFile("theMoviesdb/movies-small.csv",compareRecordIds) 
-    print("Datos cargados, " + str(lt.size(lst)) + " elementos cargados")
+    lst = loadCSVFile("theMoviesdb/SmallMoviesDetailsCleaned.csv",compareRecordIds) 
+    print("Datos de películas cargados, " + str(lt.size(lst)) + " elementos cargados")
     return lst
 
+def loadCasting():
+    lst = loadCSVFile("theMoviesdb/MoviesCastingRaw-small.csv",compareRecordIds) 
+    print("Datos del elenco cargados, " + str(lt.size(lst)) + " elementos cargados")
+    return lst
+
+
+def countElementsByCriteria(criteria, lst, lst2, type):
+    """
+    Retorna la cantidad de elementos que cumplen con un criterio para una columna dada
+    """
+    t1_start = process_time()
+    counter = 0
+    iterator = it.newIterator(lst)
+    pel_id = []
+    while it.hasNext(iterator):
+        element = it.next(iterator)
+        if criteria.lower() == element["director_name"].lower():
+            pel_id.append(element["id"])
+            counter +=1
+    
+    iterator = it.newIterator(lst2)
+    lst_pel=[]
+    suma = 0
+    div = 0
+    promedio = 0
+    while it.hasNext(iterator):
+        element = it.next(iterator)
+        if element[type] in pel_id:
+            lst_pel.append(element["original_title"])
+            suma+=float(element["vote_average"])
+            div +=1
+    
+    try:
+        promedio = round(suma/div,3)
+    except:
+        print("Este director no tiene películas en el registro")
+
+    t1_stop = process_time() #tiempo final
+    print("Tiempo de ejecución ",t1_stop-t1_start," segundos")
+    
+    return (lst_pel,counter,promedio)
+
+def less_count(element1, element2):
+    if float(element1['vote_count']) < float(element2['vote_count']):
+        return True
+    return False
+
+def less_average(element1, element2):
+    if float(element1['vote_average']) < float(element2['vote_average']):
+        return True
+    return False
+
+def greater_count(element1, element2):
+    if float(element1['vote_count']) > float(element2['vote_count']):
+        return True
+    return False
+
+def greater_average(element1, element2):
+    if float(element1['vote_average']) > float(element2['vote_average']):
+        return True
+    return False
+
+def orderElementsByCriteria(lst,tipo,gb,cant):
+    """
+    Retorna una lista con cierta cantidad de elementos ordenados por el criterio
+    """
+    t1_start = process_time()
+    if tipo == 1:
+        print("Filtrando listas...")
+        shsort.shellSort(lst,greater_count)
+        if gb == 1:
+            bestcount = []
+            for a in list(range(1,cant+1)):
+                element = lt.getElement(lst,a)
+                bestcount.append({element["original_title"]:element["vote_count"]})
+            print("Top",cant, "películas con mayor cantidad de votos: \n",bestcount)
+
+        elif gb == 2:
+            worstcount = []
+            for a in list(range(lt.size(lst)-(cant),lt.size(lst))):
+                element = lt.getElement(lst,a)
+                worstcount.append({element["original_title"]:element["vote_count"]})
+            print("Top",cant, "películas con menor cantidad de votos: \n",worstcount)
+
+    if tipo == 2:
+        print("Filtrando listas...")
+        shsort.shellSort(lst,greater_average)
+        if gb ==1:
+            bestaverage = []
+            for a in list(range(1,cant+1)):
+                element = lt.getElement(lst,a)
+                bestaverage.append({element["original_title"]:element["vote_average"]})
+            print("Top",cant,"películas con mejor promedio de votos: \n",bestaverage)
+
+        elif gb ==2:
+            worstaverage = []
+            for a in list(range(lt.size(lst)-(cant),lt.size(lst))):
+                element = lt.getElement(lst,a)
+                worstaverage.insert(0,{element["original_title"]:element["vote_average"]})
+            print("Top",cant, "películas con peor promedio de votos: \n",worstaverage)
+
+    t1_stop = process_time()
+    print("Tiempo de ejecución ",t1_stop-t1_start," segundos")
+
+    return "Acción realizada con éxito"
 
 def main():
     """
@@ -92,7 +200,6 @@ def main():
     Return: None 
     """
 
-
     while True:
         printMenu() #imprimir el menu de opciones en consola
         inputs =input('Seleccione una opción para continuar\n') #leer opción ingresada
@@ -100,12 +207,30 @@ def main():
 
             if int(inputs[0])==1: #opcion 1
                 lstmovies = loadMovies()
+                lstcasting = loadCasting()
 
             elif int(inputs[0])==2: #opcion 2
-                pass
+                if lstmovies==None or lstmovies['size']==0: #obtener la longitud de la lista
+                    print("La lista esta vacía")
+                else:
+                    tipo = int(input("Ingrese si quiere ver la cantidad de votos o el promedio de votos (1 o 2): "))
+                    guba = int(input("Ingrese si quiere ver las mejores o las peores (1 o 2): "))
+                    cant = int(input("Ingrese la cantidad de películas que desea ver en el top: "))
+                    orderElementsByCriteria(lstmovies, tipo, guba, cant)
 
             elif int(inputs[0])==3: #opcion 3
-                pass
+                if lstmovies==None or lstmovies['size']==0: #obtener la longitud de la lista
+                    print("La lista de películas esta vacía")
+                elif lstcasting == None or lstcasting['size']==0:
+                    print("La lista del elenco esta vacía")
+                else:
+                    if lt.size(lstmovies)>2000:
+                        type = "\ufeffid"
+                    else:
+                        type = "id"
+                    criteria =input('Ingrese el nombre del director\n')
+                    counter=countElementsByCriteria(criteria,lstcasting,lstmovies,type)
+                    print("El director",criteria,"tiene un total de",counter[1],"películas con una calificación promedio de",counter[2],"\n",counter[0])
 
             elif int(inputs[0])==4: #opcion 4
                 pass
