@@ -79,13 +79,19 @@ def loadCSVFile (file, cmpfunction):
 
 
 def loadMovies ():
-    lst = loadCSVFile("theMoviesdb/SmallMoviesDetailsCleaned.csv",compareRecordIds) 
+    t1_start = process_time()
+    lst = loadCSVFile("theMoviesdb/AllMoviesDetailsCleaned.csv",compareRecordIds) 
     print("Datos de películas cargados, " + str(lt.size(lst)) + " elementos cargados")
+    t1_stop = process_time() #tiempo final
+    print("Tiempo de ejecución ",t1_stop-t1_start," segundos")
     return lst
 
 def loadCasting():
-    lst = loadCSVFile("theMoviesdb/MoviesCastingRaw-small.csv",compareRecordIds) 
+    t1_start = process_time()
+    lst = loadCSVFile("theMoviesdb/AllMoviesCastingRaw.csv",compareRecordIds) 
     print("Datos del elenco cargados, " + str(lt.size(lst)) + " elementos cargados")
+    t1_stop = process_time() #tiempo final
+    print("Tiempo de ejecución ",t1_stop-t1_start," segundos")
     return lst
 
 
@@ -140,6 +146,7 @@ def orderElementsByCriteria(lst, count_average, best_worst, number):
     """
     Retorna una lista con cierta cantidad de elementos ordenados por el criterio
     """
+    t1_start = process_time()
     if lst["size"]<10 or number <10:
         return 0
     else:
@@ -164,6 +171,8 @@ def orderElementsByCriteria(lst, count_average, best_worst, number):
                 lista[0][fila["original_title"]]=fila[objeto]
         else:
             return 0
+    t1_stop = process_time() #tiempo final
+    print("Tiempo de ejecución ",t1_stop-t1_start," segundos")
     return lista
 
 def orderElementsByRankingGenre(lstmovies,genre,top,best_worst,average_count):
@@ -210,7 +219,8 @@ def orderElementsByRankingGenre(lstmovies,genre,top,best_worst,average_count):
     return (finalList, prom/top)
 
 
-def moviesByActor(criteria, lista, lista2):
+def moviesByActor(criteria, lista, lista2,type):
+    t1_start = process_time()
     res=0 #cantidad de apariciones
     IdNombres=[]
     ListaNombres=[]
@@ -225,7 +235,7 @@ def moviesByActor(criteria, lista, lista2):
     iterator2 = it.newIterator(lista2)
     while it.hasNext(iterator2):
         element = it.next(iterator2)
-        if element["id"] in IdNombres: #buscar id de la lista 2
+        if element[type] in IdNombres: #buscar id de la lista 2
             ListaNombres.append(element['original_title'])
             Prom += float((element["vote_average"]))
     try:
@@ -233,6 +243,8 @@ def moviesByActor(criteria, lista, lista2):
         final= str("Tu actor/actriz aparece en ") +str(res) +str(" peliculas con un promedio de ") +str(promedio) +str("\nEl nombre de estas peliculas son: ") +str(ListaNombres)
     except:
         final= "Tu actor no existe en esta lista"
+    t1_stop = process_time()
+    print("Tiempo de ejecución ",t1_stop-t1_start," segundos")   
     return final
 
 def conocerUnGenero(lst,genero):
@@ -289,10 +301,7 @@ def main():
                     tipo = input("Ingrese COUNT si quiere ver la cantidad de votos o AVERAGE si quiere ver el promedio de votos:\n")
                     guba = input("Ingrese BEST si quiere ver las mejores o  WORST si quiere ver las peores:\n")
                     cant = int(input("Ingrese la cantidad de películas que desea ver en el top: "))
-                    if orderElementsByCriteria(lstmovies, tipo, guba, cant) != 0:
-                        print(orderElementsByCriteria(lstmovies, tipo, guba, cant))
-                    else:
-                        print("Ingrese valores válidos para poder hacer el ranking")
+                    print(orderElementsByCriteria(lstmovies, tipo, guba, cant))
 
             elif int(inputs[0])==3: #opcion 3
                 if lstmovies==None or lstmovies['size']==0: #obtener la longitud de la lista
@@ -320,7 +329,7 @@ def main():
                         type = "id"
                     criteria =input('Escribe el nombre de un actor\n')
                     print("Cargando...")
-                    counter=moviesByActor(criteria,lstcasting,lstmovies) 
+                    counter=moviesByActor(criteria,lstcasting,lstmovies,type) 
                     print(counter)
 
             elif int(inputs[0])==5: #opcion 5
