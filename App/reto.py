@@ -125,15 +125,6 @@ def countElementsByCriteria(criteria, lst, lst2, type):
     
     return (lst_pel,counter,promedio)
 
-def less_count(element1, element2):
-    if float(element1['vote_count']) < float(element2['vote_count']):
-        return True
-    return False
-
-def less_average(element1, element2):
-    if float(element1['vote_average']) < float(element2['vote_average']):
-        return True
-    return False
 
 def greater_count(element1, element2):
     if float(element1['vote_count']) > float(element2['vote_count']):
@@ -218,6 +209,58 @@ def orderElementsByRankingGenre(lstmovies,genre,top,best_worst,average_count):
     print("Tiempo de ejecución ",t1_stop-t1_start," segundos")        
     return (finalList, prom/top)
 
+
+def moviesByActor(criteria, lista, lista2):
+    res=0 #cantidad de apariciones
+    IdNombres=[]
+    ListaNombres=[]
+    Prom=0
+    iterator = it.newIterator(lista)
+    while it.hasNext(iterator):
+        element = it.next(iterator)
+        if (criteria == element['actor1_name']) or (criteria == element['actor2_name']) or (criteria == element['actor3_name']) or (criteria == element['actor4_name']) or (criteria == element['actor5_name']):
+            IdNombres.append(element["id"])
+            res +=1
+
+    iterator2 = it.newIterator(lista2)
+    while it.hasNext(iterator2):
+        element = it.next(iterator2)
+        if element["id"] in IdNombres: #buscar id de la lista 2
+            ListaNombres.append(element['original_title'])
+            Prom += float((element["vote_average"]))
+    promedio= round(Prom/res,2)
+    final= str("tu actor/actriz aparece en ") +str(res) +str(" peliculas con un promedio de ") +str(promedio) +str("\nEl nombre de estas peliculas son: ") +str(ListaNombres)
+    return final
+
+def conocerUnGenero(lst,genero):
+    t1_start = process_time()
+    iterator = it.newIterator(lst)
+    pelis = []
+    sumpr = 0
+    counter = 0
+    if lst['size']==0:
+        print("La lista esta vacía")  
+        return 0
+    else:
+        while it.hasNext(iterator):
+            element = it.next(iterator)
+            if genero.lower() in element["genres"].lower():
+                pelis.append(element["original_title"])
+                sumpr += float(element["vote_average"])
+                counter+=1
+    try:
+        promedio = sumpr/counter
+    except:
+        promedio = 0
+    t1_stop = process_time() #tiempo final
+    
+    print(pelis)
+    print("\nLa lista que se imprimió contiene los nombres de todas pas películas del género",genero)
+    print("\nEl género",genero,"tiene un total de",counter,"películas con un promedio acumulado de",round(promedio,3))
+    print("\nTiempo de ejecución ",t1_stop-t1_start," segundos")
+    return "Acción realizada con éxito"
+
+
 def main():
     """
     Método principal del programa, se encarga de manejar todos los metodos adicionales creados
@@ -263,10 +306,24 @@ def main():
                     print("El director",criteria,"tiene un total de",counter[1],"películas con una calificación promedio de",counter[2],"\n",counter[0])
 
             elif int(inputs[0])==4: #opcion 4
-                pass
+                if lstmovies==None or lstmovies['size']==0: #obtener la longitud de la lista
+                    print("La lista de películas esta vacía")
+                elif lstcasting == None or lstcasting['size']==0:
+                    print("La lista del elenco esta vacía")
+                else:
+                    if lt.size(lstmovies)>2000:
+                        type = "\ufeffid"
+                    else:
+                        type = "id"
+                    criteria =input('Escribe el nombre de un actor\n')
+                    print("Cargando...")
+                    counter=moviesByActor(criteria,lstcasting,lstmovies) 
+                    print(counter)
 
             elif int(inputs[0])==5: #opcion 5
-                pass
+                genero = input("Ingrese el género que desea conocer: ")
+                conocerUnGenero(lstmovies,genero)
+    
 
             elif int(inputs[0])==6: #opcion 6
                 genre = input("Escriba el genero que quiere rankear:\n")
@@ -278,7 +335,6 @@ def main():
                     print("La lista es demasiada corta para el numero de películas que quiere filtar o quiere hacer un ranking menor a 10 películas o introdujo un género inexistente en la base de datos, intentelo de nuevo\n")
                 else:
                     print("El ranking del genero", genre, "por", best_worst, count_average, "es:", ranking[0], "y el promedio del ranking es", ranking[1], "votos")
-
 
             elif int(inputs[0])==0: #opcion 0, salir
                 sys.exit(0)
