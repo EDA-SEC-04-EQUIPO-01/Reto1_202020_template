@@ -191,6 +191,29 @@ def orderElementsByCriteria(lst,tipo,gb,cant):
 
     return "Acción realizada con éxito"
 
+
+def moviesByActor(criteria, lista, lista2):
+    res=0 #cantidad de apariciones
+    IdNombres=[]
+    ListaNombres=[]
+    Prom=0
+    iterator = it.newIterator(lista)
+    while it.hasNext(iterator):
+        element = it.next(iterator)
+        if (criteria == element['actor1_name']) or (criteria == element['actor2_name']) or (criteria == element['actor3_name']) or (criteria == element['actor4_name']) or (criteria == element['actor5_name']):
+            IdNombres.append(element["id"])
+            res +=1
+
+    iterator2 = it.newIterator(lista2)
+    while it.hasNext(iterator2):
+        element = it.next(iterator2)
+        if element["id"] in IdNombres: #buscar id de la lista 2
+            ListaNombres.append(element['original_title'])
+            Prom += float((element["vote_average"]))
+    promedio= round(Prom/res,2)
+    final= str("tu actor/actriz aparece en ") +str(res) +str(" peliculas con un promedio de ") +str(promedio) +str("\nEl nombre de estas peliculas son: ") +str(ListaNombres)
+    return final
+
 def conocerUnGenero(lst,genero):
     t1_start = process_time()
     iterator = it.newIterator(lst)
@@ -218,6 +241,7 @@ def conocerUnGenero(lst,genero):
     print("\nEl género",genero,"tiene un total de",counter,"películas con un promedio acumulado de",round(promedio,3))
     print("\nTiempo de ejecución ",t1_stop-t1_start," segundos")
     return "Acción realizada con éxito"
+
 
 def main():
     """
@@ -261,7 +285,19 @@ def main():
                     print("El director",criteria,"tiene un total de",counter[1],"películas con una calificación promedio de",counter[2],"\n",counter[0])
 
             elif int(inputs[0])==4: #opcion 4
-                pass
+                if lstmovies==None or lstmovies['size']==0: #obtener la longitud de la lista
+                    print("La lista de películas esta vacía")
+                elif lstcasting == None or lstcasting['size']==0:
+                    print("La lista del elenco esta vacía")
+                else:
+                    if lt.size(lstmovies)>2000:
+                        type = "\ufeffid"
+                    else:
+                        type = "id"
+                    criteria =input('Escribe el nombre de un actor\n')
+                    print("Cargando...")
+                    counter=moviesByActor(criteria,lstcasting,lstmovies) 
+                    print(counter)
 
             elif int(inputs[0])==5: #opcion 5
                 genero = input("Ingrese el género que desea conocer: ")
@@ -269,7 +305,6 @@ def main():
 
             elif int(inputs[0])==6: #opcion 6
                 pass
-
 
             elif int(inputs[0])==0: #opcion 0, salir
                 sys.exit(0)
