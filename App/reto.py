@@ -191,6 +191,7 @@ def orderElementsByCriteria(lst,tipo,gb,cant):
 
     return "Acción realizada con éxito"
 
+
 def moviesByActor(criteria, lista, lista2):
     res=0 #cantidad de apariciones
     IdNombres=[]
@@ -212,6 +213,35 @@ def moviesByActor(criteria, lista, lista2):
     promedio= round(Prom/res,2)
     final= str("tu actor/actriz aparece en ") +str(res) +str(" peliculas con un promedio de ") +str(promedio) +str("\nEl nombre de estas peliculas son: ") +str(ListaNombres)
     return final
+
+def conocerUnGenero(lst,genero):
+    t1_start = process_time()
+    iterator = it.newIterator(lst)
+    pelis = []
+    sumpr = 0
+    counter = 0
+    if lst['size']==0:
+        print("La lista esta vacía")  
+        return 0
+    else:
+        while it.hasNext(iterator):
+            element = it.next(iterator)
+            if genero.lower() in element["genres"].lower():
+                pelis.append(element["original_title"])
+                sumpr += float(element["vote_average"])
+                counter+=1
+    try:
+        promedio = sumpr/counter
+    except:
+        promedio = 0
+    t1_stop = process_time() #tiempo final
+    
+    print(pelis)
+    print("\nLa lista que se imprimió contiene los nombres de todas pas películas del género",genero)
+    print("\nEl género",genero,"tiene un total de",counter,"películas con un promedio acumulado de",round(promedio,3))
+    print("\nTiempo de ejecución ",t1_stop-t1_start," segundos")
+    return "Acción realizada con éxito"
+
 
 def main():
     """
@@ -269,10 +299,11 @@ def main():
                     counter=moviesByActor(criteria,lstcasting,lstmovies) 
                     print(counter)
 
-            elif int(inputs[0])==3: #opcion 5
-                pass
+            elif int(inputs[0])==5: #opcion 5
+                genero = input("Ingrese el género que desea conocer: ")
+                conocerUnGenero(lstmovies,genero)
 
-            elif int(inputs[0])==4: #opcion 6
+            elif int(inputs[0])==6: #opcion 6
                 pass
 
             elif int(inputs[0])==0: #opcion 0, salir
