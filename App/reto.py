@@ -218,7 +218,7 @@ def moviesByActor(criteria, lista, lista2):
     iterator = it.newIterator(lista)
     while it.hasNext(iterator):
         element = it.next(iterator)
-        if (criteria == element['actor1_name']) or (criteria == element['actor2_name']) or (criteria == element['actor3_name']) or (criteria == element['actor4_name']) or (criteria == element['actor5_name']):
+        if (criteria.lower() == element['actor1_name'].lower()) or (criteria.lower() == element['actor2_name'].lower()) or (criteria.lower() == element['actor3_name'].lower()) or (criteria.lower() == element['actor4_name'].lower()) or (criteria.lower() == element['actor5_name'].lower()):
             IdNombres.append(element["id"])
             res +=1
 
@@ -228,8 +228,11 @@ def moviesByActor(criteria, lista, lista2):
         if element["id"] in IdNombres: #buscar id de la lista 2
             ListaNombres.append(element['original_title'])
             Prom += float((element["vote_average"]))
-    promedio= round(Prom/res,2)
-    final= str("tu actor/actriz aparece en ") +str(res) +str(" peliculas con un promedio de ") +str(promedio) +str("\nEl nombre de estas peliculas son: ") +str(ListaNombres)
+    try:
+        promedio= round(Prom/res,2)
+        final= str("Tu actor/actriz aparece en ") +str(res) +str(" peliculas con un promedio de ") +str(promedio) +str("\nEl nombre de estas peliculas son: ") +str(ListaNombres)
+    except:
+        final= "Tu actor no existe en esta lista"
     return final
 
 def conocerUnGenero(lst,genero):
