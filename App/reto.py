@@ -226,10 +226,19 @@ def moviesByActor(criteria, lista, lista2,type):
     ListaNombres=[]
     Prom=0
     iterator = it.newIterator(lista)
+    dic = {}
+    ma = 0
     while it.hasNext(iterator):
         element = it.next(iterator)
         if (criteria.lower() == element['actor1_name'].lower()) or (criteria.lower() == element['actor2_name'].lower()) or (criteria.lower() == element['actor3_name'].lower()) or (criteria.lower() == element['actor4_name'].lower()) or (criteria.lower() == element['actor5_name'].lower()):
             IdNombres.append(element["id"])
+            if element['director_name'] not in dic:
+                dic[element['director_name']]=1
+            else:
+                dic[element['director_name']]+=1
+            if int(dic[element['director_name']]) > ma:
+                ma= int(dic[element['director_name']])
+                nombre=element['director_name']
             res +=1
 
     iterator2 = it.newIterator(lista2)
@@ -240,11 +249,11 @@ def moviesByActor(criteria, lista, lista2,type):
             Prom += float((element["vote_average"]))
     try:
         promedio= round(Prom/res,2)
-        final= str("Tu actor/actriz aparece en ") +str(res) +str(" peliculas con un promedio de ") +str(promedio) +str("\nEl nombre de estas peliculas son: ") +str(ListaNombres)
+        final= str("Tu actor/actriz aparece en ") +str(res) +str(" peliculas con un promedio de ") +str(promedio)+str("\nAdemas el actor ha aparecido mas veces en las peliculas del director: ") +str(nombre) +str("\nEl nombre de estas peliculas son: ") +str(ListaNombres)
     except:
         final= "Tu actor no existe en esta lista"
     t1_stop = process_time()
-    print("Tiempo de ejecución ",t1_stop-t1_start," segundos")   
+    print("Tiempo de ejecución ",t1_stop-t1_start," segundos")  
     return final
 
 def conocerUnGenero(lst,genero):
